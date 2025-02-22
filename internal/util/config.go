@@ -6,6 +6,13 @@ type Config struct {
 	APPPORT  string `mapstructure:"APP_PORT"`
 	APPNAME  string `mapstructure:"APP_NAME"`
 	APPDEBUG string `mapstructure:"APP_DEBUG"`
+
+	DBCONNECTION string `mapstructure:"DB_CONNECTION"`
+	DBHOST       string `mapstructure:"DB_HOST"`
+	DBUSERNAME   string `mapstructure:"DB_USERNAME"`
+	DBPASSWORD   string `mapstructure:"DB_PASSWORD"`
+	DBDATABASE   string `mapstructure:"DB_DATABASE"`
+	DBPORT       string `mapstructure:"DB_PORT"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
@@ -20,9 +27,7 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 
 	err = viper.Unmarshal(&config)
-	
-	return 
-	
 
+	return
 
 }
