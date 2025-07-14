@@ -31,7 +31,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("/Hello", func(c *fiber.Ctx) error {
+	app.Get("/Hello", func(c fiber.Ctx) error {
 		return c.SendString("hello world ")
 	})
 	port := "3000"
