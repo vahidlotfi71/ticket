@@ -1,9 +1,9 @@
 package routes
 
-import "github.com/gofiber/fiber/v3"
+import "github.com/gofiber/fiber/v2"
 
 // تعریف کنترلر به‌صورت closure
-var defaultController = func(c fiber.Ctx) error {
+var defaultController = func(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{
 		"message": "hello from default controller",
 	})
@@ -13,7 +13,7 @@ func Routes(app *fiber.App) {
 	// گروه اصلی admin
 	adminGroup := app.Group("/admin")
 
-	adminGroup.Get("/", func(c fiber.Ctx) error {
+	adminGroup.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{
 			"message": "admin index route",
 		})

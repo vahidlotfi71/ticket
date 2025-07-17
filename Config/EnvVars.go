@@ -15,7 +15,7 @@ var (
 )
 
 func GetEnv() error {
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(".env.example"); err != nil {
 		return err
 	}
 
