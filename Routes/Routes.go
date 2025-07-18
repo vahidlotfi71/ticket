@@ -1,6 +1,9 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/vahidlotfi71/ticket/Controllers/Admin/UserController"
+)
 
 // تعریف کنترلر به‌صورت closure
 var defaultController = func(c *fiber.Ctx) error {
@@ -22,9 +25,9 @@ func Routes(app *fiber.App) {
 	// گروه user زیرمجموعه admin
 	userGroup := adminGroup.Group("/user")
 
-	userGroup.Get("/", defaultController)            // لیست همه‌ی کاربران
-	userGroup.Get("/show/:id", defaultController)    // نمایش جزئیات کاربر
-	userGroup.Post("/store", defaultController)      // ساخت کاربر جدید
-	userGroup.Post("/update/:id", defaultController) // ویرایش کاربر
-	userGroup.Post("/delete/:id", defaultController) // حذف کاربر
+	userGroup.Get("/", UserController.Index)             // لیست همه‌ی کاربران
+	userGroup.Get("/show/:id", UserController.Show)      // نمایش جزئیات کاربر
+	userGroup.Post("/store", UserController.Store)       // ساخت کاربر جدید
+	userGroup.Post("/update/:id", UserController.Update) // ویرایش کاربر
+	userGroup.Post("/delete/:id", UserController.Delete) // حذف کاربر
 }
