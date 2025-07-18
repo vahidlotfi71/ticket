@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vahidlotfi71/ticket/Commands"
 	"github.com/vahidlotfi71/ticket/Config"
-	"github.com/vahidlotfi71/ticket/Controllers/Admin/UserController"
+	routes "github.com/vahidlotfi71/ticket/Routes"
 )
 
 func main() {
@@ -36,20 +36,7 @@ func main() {
 		return c.SendString("hello world ")
 	})
 
-	// ایجاد کاربر
-	app.Post("/users", UserController.Store)
-
-	// مشاهده همه کاربران
-	app.Get("/users", UserController.Index)
-
-	// مشاهده یک کاربر خاص با شناسه
-	app.Get("/users/:id", UserController.Show)
-
-	// به‌روزرسانی کاربر خاص
-	app.Put("/users/:id", UserController.Update)
-
-	// حذف کاربر خاص
-	app.Delete("/users/:id", UserController.Delete)
+	routes.Routes(&app)
 
 	port := "8000"
 	fmt.Printf("Starting the server on port %s\n", port)
