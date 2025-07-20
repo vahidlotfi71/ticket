@@ -19,20 +19,20 @@ func Delete(c *fiber.Ctx) error {
 	// اگر کاربر پیدا نشد
 	if user.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{
-			"message": "کاربر پیدا نشد",
+			"message": "User not found",
 		})
 	}
 
 	// حذف کاربر از دیتابیس
 	if err := Config.DB.Delete(&user).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{
-			"message": "خطا در حذف کاربر",
+			"message": "Error deleting user",
 			"error":   err.Error(),
 		})
 	}
 
 	// بازگرداندن پیام موفقیت‌آمیز
 	return c.Status(200).JSON(fiber.Map{
-		"message": "کاربر با موفقیت حذف شد",
+		"message": "User deleted successfully",
 	})
 }
