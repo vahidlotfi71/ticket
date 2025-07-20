@@ -12,7 +12,7 @@ func Update(c *fiber.Ctx) error {
 	/* Taking the id URL paramter to be able to fetch the user */
 	id := c.Params("id")
 	var user Models.User
-	Config.DB.Find(&user, id)
+	Config.DB.First(&user, id)
 	/* Check if user exists in the database */
 	if user.ID == 0 {
 		return c.Status(404).JSON(fiber.Map{

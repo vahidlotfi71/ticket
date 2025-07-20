@@ -32,10 +32,6 @@ func main() {
 
 	app := *fiber.New()
 
-	app.Get("/Hello", func(c *fiber.Ctx) error {
-		return c.SendString("hello world ")
-	})
-
 	routes.Routes(&app)
 
 	port := "8000"
@@ -45,6 +41,5 @@ func main() {
 		fmt.Printf("\t%s\n", err.Error())
 		os.Exit(2)
 	}
-	app.Listen(":8000")
 
 }
