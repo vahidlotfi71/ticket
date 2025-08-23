@@ -1,38 +1,45 @@
 package UserController
 
 import (
-	"encoding/json"
-
 	"github.com/gofiber/fiber/v2"
-	"github.com/vahidlotfi71/ticket/Config"
 	"github.com/vahidlotfi71/ticket/Models"
+	"github.com/vahidlotfi71/ticket/Validations"
 )
 
 func Store(c *fiber.Ctx) error {
-	// Check if the request body is a valid json object
-	if !json.Valid(c.Body()) {
-		return c.Status(400).JSON(fiber.Map{
-			"message": "invalid json encoding",
+	// مرحله ۱: گرفتن ورودی از درخواست
+	var user Models.User
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "ورودی نامعتبر است",
+			"errors":  err.Error(),
 		})
 	}
-	// Then trying to unmarshal/parse the json object
-	var data Models.User
-	if err := json.Unmarshal(c.Body(), &data); err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"message": "could not parse the json",
+
+	// مرحله ۲: اعتبارسنجی (Validation)
+	v := Validations.UserValidation(user)
+	if !v.IsValid() {
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
+			"status":  "error",
+			"message": "اطلاعات وارد شده معتبر نیست",
+			"errors":  v.Errors(),
 		})
 	}
-	// There is no need to specify the table, because we are
-	// using a model instance to create the record, so the gorm
-	// will figure it out by itself to handle it in the relative
-	// table in database
-	if err := Config.DB.Create(&data).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"message": err.Error(),
+
+	// مرحله ۳: ذخیره‌سازی با سرویس
+	if err := Services.CreateUser(user); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "خطا در ذخیره‌سازی کاربر",
+			"errors":  err.Error(),
 		})
 	}
-	return c.Status(200).JSON(fiber.Map{
-		"message": "user created successfully",
+
+	// مرحله ۴: پاسخ موفقیت
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "کاربر با موفقیت ایجاد شد",
+		"data":    user,
 	})
-	/* if we want to handle it manually, we can use .Exec() method */
 }
