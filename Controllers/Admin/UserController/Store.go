@@ -11,7 +11,7 @@ func Store(c *fiber.Ctx) error {
 	var user Models.User
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "ورودی نامعتبر",
+			"message": "Invalid input.",
 		})
 	}
 
@@ -31,6 +31,6 @@ func Store(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "کاربر با موفقیت ایجاد شد",
+		"message": "User created successfully.",
 	})
 }
