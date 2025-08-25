@@ -13,13 +13,13 @@ func Update(c *fiber.Ctx) error {
 	// دریافت ID از پارامتر URL
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(400).JSON(fiber.Map{"message": "شناسه کاربر الزامی است"})
+		return c.Status(400).JSON(fiber.Map{"message": "User ID is required"})
 	}
 
 	// دریافت داده‌های جدید
 	var user Models.User
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": "ورودی نامعتبر"})
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid input"})
 	}
 
 	// اجرای Validation
@@ -31,17 +31,23 @@ func Update(c *fiber.Ctx) error {
 	// تبدیل ID از string به uint
 	uid, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": "شناسه کاربر نامعتبر است"})
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid user ID"})
 	}
 	user.ID = uint(uid)
 
 	// بروزرسانی مستقیم در دیتابیس
-	if err := Config.DB.Save(&user).Error; err != nil {
+	if err := Config.DB.Model(&Models.User{}).Where("id = ?", user.ID).
+		Updates(map[string]interface{}{
+			"name":     user.Name,
+			"email":    user.Email,
+			"password": user.Password,
+			"phone":    user.Phone,
+		}).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	return c.Status(200).JSON(fiber.Map{
-		"message": "کاربر با موفقیت بروزرسانی شد",
+		"message": "User updated successfully",
 		"data":    user,
 	})
 }

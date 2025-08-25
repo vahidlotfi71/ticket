@@ -9,80 +9,91 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vahidlotfi71/ticket/Config"
 	"github.com/vahidlotfi71/ticket/Models"
-	"github.com/valyala/fasthttp"
 )
 
 func UploadProfile(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	//  یک تراکنش دیتابیس ایجاد کردیم
+	// شروع تراکنش
 	tx := Config.DB.Begin()
-
-	// اگر وسط کار خطایی پیش آمدهمه تغییرات لغو
+	if tx.Error != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"message": "Could not start the transaction",
+		})
+	}
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
 
-	// اگر نتونست تراکنش را شروع کند
-	if tx.Error != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"message": "Could not start the transaction",
-		})
-	}
-
+	// پیدا کردن کاربر
 	var user Models.User
-	tx.Model(&Models.User{}).First(&user, id)
-	if user.ID == 0 {
+	if err := tx.First(&user, id).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{
 			"message": "user not found",
 		})
 	}
 
-	current_dir, _ := os.Getwd()
-	old_file := filepath.Join(current_dir, user.Image)
-	new_file := ""
+	currentDir, _ := os.Getwd()
+	oldFile := filepath.Join(currentDir, user.Image)
+	newFile := ""
 
+	// دریافت فایل
 	file, err := c.FormFile("image")
 	if file != nil && err == nil {
-		splitted_name := strings.Split(file.Filename, ".")
-		extension := splitted_name[len(splitted_name)-1]
+		splittedName := strings.Split(file.Filename, ".")
+		extension := splittedName[len(splittedName)-1]
 		fileName := fmt.Sprintf("%s.%s", user.Phone, extension)
-		relative_path := filepath.Join("uploads", "images", "user-profiles", fileName)
-		new_file = filepath.Join(current_dir, relative_path)
-		if err := fasthttp.SaveMultipartFile(file, new_file); err != nil {
+		relativePath := filepath.Join("uploads", "images", "user-profiles", fileName)
+		newFile = filepath.Join(currentDir, relativePath)
+
+		// ساختن پوشه اگر وجود نداشت
+		os.MkdirAll(filepath.Dir(newFile), os.ModePerm)
+
+		// ذخیره فایل با متد خود Fiber
+		if err := c.SaveFile(file, newFile); err != nil {
 			tx.Rollback()
 			return c.Status(500).JSON(fiber.Map{
 				"message": "Failed to save the file",
 			})
 		}
-		user.Image = relative_path
+
+		// به‌روزرسانی آدرس عکس کاربر
+		user.Image = relativePath
 	}
 
+	// ذخیره در دیتابیس
 	if err := tx.Save(&user).Error; err != nil {
 		tx.Rollback()
-		if new_file != "" {
-			os.Remove(new_file)
+		if newFile != "" {
+			os.Remove(newFile)
 		}
 		return c.Status(500).JSON(fiber.Map{
 			"message": "An error occurred while saving data",
 		})
 	}
+
+	// نهایی کردن تراکنش
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
-		if new_file != "" {
-			os.Remove(new_file)
+		if newFile != "" {
+			os.Remove(newFile)
 		}
 		return c.Status(500).JSON(fiber.Map{
 			"message": "An error occurred while commit data",
 		})
 	}
-	_, fileErr := os.Stat(old_file)
-	if os.IsNotExist(fileErr) {
-		os.Remove(old_file)
+
+	// حذف فایل قدیمی (اگر وجود داشت و جایگزین شد)
+	if user.Image != "" && oldFile != newFile {
+		if _, err := os.Stat(oldFile); err == nil {
+			os.Remove(oldFile)
+		}
 	}
+
 	return c.Status(200).JSON(fiber.Map{
-		"message": "profile-updated successfully",
+		"message": "profile updated successfully",
+		"image":   user.Image,
 	})
 }
