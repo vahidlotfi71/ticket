@@ -5,6 +5,9 @@ import (
 	"os"
 	"vahid/Commands"
 	"vahid/Config"
+	routes "vahid/Routes"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -24,4 +27,16 @@ func main() {
 		fmt.Printf("Connected to the database successfully ...\n")
 	}
 	Commands.AutoMigrate()
+
+	app := *fiber.New()
+	routes.Routes(&app)
+
+	port := "8000"
+	fmt.Printf("Starting the server on port %s\n", port)
+	if err := app.Listen(fmt.Sprintf(":%s", port)); err != nil {
+		fmt.Printf("Error while starting the server, see why :\n")
+		fmt.Printf("\t%s\n", err.Error())
+		os.Exit(2)
+	}
+
 }
