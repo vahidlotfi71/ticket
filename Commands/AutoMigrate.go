@@ -16,7 +16,7 @@ type NameModelPair struct {
 func AutoMigrate() {
 	models := []NameModelPair{
 		{"users", Models.User{}},
-		// اگر مدل‌های دیگری داشته باشیممی توانیم اینجا اضافه کنید
+		// اگر مدل‌های دیگری دارید می‌توانید اینجا اضافه کنید
 		// {"products", Models.Product{}},
 		// {"orders", Models.Order{}},
 	}

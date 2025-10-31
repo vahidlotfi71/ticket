@@ -48,6 +48,8 @@ func UploadProfile(c *fiber.Ctx) error {
 		relativePath := filepath.Join("uploads", "images", "user-profiles", fileName)
 		newFile = filepath.Join(currentDir, relativePath)
 
+		// ساختن پوشه اگر وجود نداشت
+		os.MkdirAll(filepath.Dir(newFile), os.ModePerm)
 
 		// ذخیره فایل با متد خود Fiber
 		if err := c.SaveFile(file, newFile); err != nil {
