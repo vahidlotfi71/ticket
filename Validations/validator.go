@@ -1,8 +1,6 @@
 package Validations
 
-import (
-	"github.com/vahidlotfi71/ticket/Rules"
-)
+import "github.com/vahidlotfi71/ticket/Rules"
 
 type Validator struct {
 	fieldName string
@@ -46,7 +44,6 @@ func (v *Validator) Email() *Validator {
 	}
 	return v
 }
-
 func (v *Validator) Phone() *Validator {
 	if err := Rules.Phone(v.value); err != "" {
 		v.errors[v.fieldName] = err
