@@ -34,7 +34,7 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	tx := Config.DB
 	var user Models.User
 
-	if err := tx.Where("id = ? AND name = ? AND phone = ? AND email = ? AND deleted_at IS NULL",
+	if err := tx.Where("id = ? AND name = ? AND phone = ? AND email = ?",
 		user_id, name, phone, email).
 		First(&user).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{
