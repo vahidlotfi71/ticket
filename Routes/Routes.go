@@ -3,6 +3,7 @@ package Routes
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vahidlotfi71/ticket/Controllers/Admin/UserController"
+	"github.com/vahidlotfi71/ticket/Middlewares"
 )
 
 // تعریف کنترلر به‌صورت closure
@@ -23,7 +24,7 @@ func Routes(app *fiber.App) {
 	})
 
 	// گروه user زیرمجموعه admin
-	userGroup := adminGroup.Group("/user")
+	userGroup := adminGroup.Group("/user", Middlewares.AuthMiddleware)
 
 	userGroup.Get("/", UserController.Index)                            // لیست همه‌ی کاربران
 	userGroup.Get("/show/:id", UserController.Show)                     // نمایش جزئیات کاربر
